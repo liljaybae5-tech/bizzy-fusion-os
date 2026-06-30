@@ -6,8 +6,8 @@ AS = as
 LD = ld
 ARCH = i686
 
-# Flags
-CFLAGS = -std=c99 -ffreestanding -nostdlib -m32 -Wall -Wextra
+# Flags - include current directory for headers
+CFLAGS = -std=c99 -ffreestanding -nostdlib -m32 -Wall -Wextra -I.
 ASFLAGS = --32
 LDFLAGS = -m elf_i386 -T linker.ld
 
