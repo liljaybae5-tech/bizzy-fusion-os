@@ -1,3 +1,14 @@
+OUTPUT_FORMAT(elf64-x86-64)
+ENTRY(start)
+
+/* Place the kernel at 1 MiB (0x00100000) - conventional kernel load area */
+SECTIONS
+{
+  . = 0x00100000;
+
+  .text :
+  {
+    *(.multiboot2_header)
 OUTPUT_FORMAT(elf32-i386)
 ENTRY(kernel_entry)
 
@@ -15,6 +26,8 @@ SECTIONS
   .rodata : { *(.rodata) }
   .data : { *(.data) }
 
+  .bss :
+  {
   .bss : {
     __bss_start = .;
     *(.bss)
