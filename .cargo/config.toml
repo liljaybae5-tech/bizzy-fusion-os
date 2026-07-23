@@ -1,0 +1,11 @@
+[build]
+# Force Rust to automatically use your custom 64-bit target json file
+target = "x86_64-bizzy_fusion.json"
+
+[target.x86_64-bizzy_fusion]
+# Arguments passed to the linker to align your kernel code layout sections
+rustflags = [
+    "-C", "link-arg=-Tlinker.ld",
+    "-C", "no-redzone=yes"
+]
+
