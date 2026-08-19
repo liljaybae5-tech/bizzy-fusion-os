@@ -22,7 +22,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 # Kernel source files
 set(KERNEL_SOURCES
     kernel/core/kernel.c
-    kernel/core/boot.s
+    kernel/boot.S
     kernel/process/process.c
     kernel/process/scheduler.c
     kernel/memory/paging.c
