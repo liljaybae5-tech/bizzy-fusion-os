@@ -1,0 +1,20 @@
+name: Build Bizzy Fusion OS
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Run Dependency Script
+        run: |
+          chmod +x ./scripts/install-deps.sh
+          ./scripts/install-deps.sh
