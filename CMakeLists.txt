@@ -10,7 +10,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # Compiler flags for cross-compilation (i686-elf)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ffreestanding -O2 -Wall -Wextra")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nostdlib -nostartfiles -node24faultlibs")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nostdlib -nostartfiles -node.24faultlibs")
 
 # ASM flags
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp")
@@ -21,7 +21,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Kernel source files
 set(KERNEL_SOURCES
-    kernel/core/kernel.c
+    kernel/kernel.C
     kernel/boot.S
     kernel/process/process.c
     kernel/process/scheduler.c
