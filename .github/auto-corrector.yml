@@ -1,0 +1,94 @@
+# Auto-Correction Agent Configuration
+
+# Minimum confidence level for automatic corrections (0.0 - 1.0)
+min_confidence: 0.85
+
+# Enable automatic pull request creation
+auto_pr_enabled: true
+
+# Target branch for pull requests
+target_branch: main
+
+# Validate corrections before creating PR
+validate_before_pr: true
+
+# Issue type detection configuration
+detection:
+  # Enable compilation error detection
+  compilation_errors: true
+  
+  # Enable code style analysis
+  style_violations: true
+  
+  # Enable security scanning
+  security_checks: true
+  
+  # Enable performance analysis
+  performance_analysis: false
+
+# Correction strategies to apply
+strategies:
+  - name: syntax_fix
+    enabled: true
+    confidence_threshold: 0.95
+  
+  - name: style_fix
+    enabled: true
+    confidence_threshold: 0.90
+  
+  - name: formatting
+    enabled: true
+    confidence_threshold: 0.80
+
+# Validation requirements
+validation:
+  # Require compilation success
+  require_compilation: true
+  
+  # Require all tests to pass
+  require_tests: true
+  
+  # Minimum quality score (0.0 - 1.0)
+  min_quality_score: 0.75
+  
+  # Perform safety analysis
+  check_safety: true
+
+# Pull request settings
+pull_request:
+  # Auto-assign reviewers (GitHub usernames)
+  reviewers: []
+  
+  # Apply labels to generated PRs
+  labels:
+    - automated
+    - auto-fix
+    - code-quality
+  
+  # Create draft PRs instead of ready for review
+  draft: false
+  
+  # Link to issues automatically
+  link_issues: true
+
+# Notification settings
+notifications:
+  # Send completion notifications
+  enabled: true
+  
+  # Notify on success
+  on_success: true
+  
+  # Notify on failure
+  on_failure: true
+
+# Logging configuration
+logging:
+  # Log level (debug, info, warn, error)
+  level: info
+  
+  # Include detailed output
+  verbose: false
+  
+  # Save logs to artifacts
+  save_artifacts: true
