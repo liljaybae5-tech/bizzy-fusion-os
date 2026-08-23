@@ -32,13 +32,17 @@
 
 ### Phase 2: Create GitHub Actions Workflow
 
-**IMPORTANT**: Due to permission limitations, manually create the workflow file:
+**IMPORTANT**: Manually create the workflow file:
 
 1. **Create Directory**: `.github/workflows/` (if not exists)
 
 2. **Create File**: `.github/workflows/auto-correction.yml`
 
-3. **Copy Content**: Use template from `docs/WORKFLOW_TEMPLATE.yml`
+3. **Workflow Content**: Includes 4 jobs for full pipeline
+   - detect-issues: Scans for problems
+   - auto-correct: Applies fixes
+   - create-pr: Generates pull request
+   - notification: Reports status
 
 4. **Commit**:
    ```bash
@@ -49,7 +53,7 @@
 
 ### Phase 3: Configure Permissions
 
-In GitHub repository:
+In GitHub repository settings:
 
 1. Go to **Settings** → **Workflow permissions**
 2. Select **"Read and write permissions"**
@@ -59,12 +63,7 @@ In GitHub repository:
 ### Phase 4: Merge to Main
 
 ```bash
-# Option 1: Via GitHub UI
-# - Create Pull Request from feature/auto-correction-agent
-# - Review changes
-# - Merge to main
-
-# Option 2: Via CLI
+# Via GitHub UI or CLI
 git checkout main
 git pull origin main
 git merge feature/auto-correction-agent
@@ -159,7 +158,7 @@ pull_request:
 
 ---
 
-## 🔧 WORKFLOW TEMPLATE
+## 🔧 WORKFLOW STRUCTURE
 
 The workflow includes 4 main jobs:
 
@@ -239,7 +238,12 @@ The workflow includes 4 main jobs:
 - `AUTO_CORRECTION_AGENT.md` - Main documentation
 - `docs/AUTO_CORRECTION_SETUP.md` - Setup guide
 - `docs/IMPLEMENTATION_GUIDE.md` - Implementation details
-- `docs/WORKFLOW_TEMPLATE.yml` - Workflow file template
+
+### Rust Module Reference
+- `src/auto_corrector/detector.rs` - Issue detection
+- `src/auto_corrector/corrector.rs` - Code corrections
+- `src/auto_corrector/validator.rs` - Validation logic
+- `src/auto_corrector/pr_generator.rs` - PR creation
 
 ### Troubleshooting
 
@@ -277,25 +281,29 @@ Your Auto-Correction Agent is successfully deployed when:
 
 ## 🎯 NEXT STEPS (Post-Deployment)
 
-1. **Team Training** (Day 1-2)
-   - Share documentation with team
-   - Explain auto-correction process
-   - Show first results
+### Week 1: Deployment
+1. Merge feature branch to main
+2. Create `.github/workflows/auto-correction.yml`
+3. Configure repository permissions
+4. Trigger first manual workflow run
 
-2. **Monitoring Phase** (Week 1)
-   - Review all auto-correction PRs
-   - Monitor quality metrics
-   - Gather team feedback
+### Week 2: Monitoring
+1. Review all auto-correction PRs
+2. Monitor quality metrics
+3. Gather team feedback
+4. Document any issues
 
-3. **Optimization** (Week 2-4)
-   - Adjust confidence thresholds
-   - Customize strategies
-   - Fine-tune schedule
+### Week 3-4: Optimization
+1. Adjust confidence thresholds
+2. Customize correction strategies
+3. Fine-tune schedule
+4. Add team-specific rules
 
-4. **Expansion** (Month 2+)
-   - Add custom detection strategies
-   - Integrate with other tools
-   - Scale to multiple projects
+### Month 2+: Expansion
+1. Add custom detection strategies
+2. Integrate with other tools
+3. Scale to multiple projects
+4. Establish best practices
 
 ---
 
@@ -325,4 +333,4 @@ Your **Auto-Correction Agent** is now ready to:
 **Documentation**: Comprehensive ✅  
 **Team Ready**: Yes ✅  
 
-Let's maintain excellence in your codebase! 🚀
+**Let's maintain excellence in your codebase! 🚀**
