@@ -1,37 +1,36 @@
-# Bizzy-Fusion-OS
+Bizzy-Fusion-OS — minimal 64-bit hobby kernel (ELF64)
+=====================================================
 
-## Welcome to Bizzy-Fusion-OS
+What this is
+- A minimal 64-bit (x86_64) hobby kernel scaffold that builds into an ELF64
+  binary with a small multiboot2 header so GRUB can load it. The kernel prints
+  a message to the VGA text buffer and halts.
 
-A modern, efficient operating system designed for productivity and seamless integration across devices.
+Dependencies (example for Debian/Ubuntu)
+- build-essential, gcc, binutils, grub-mkrescue, xorriso, qemu-system-x86_64
+  sudo apt install build-essential gcc binutils grub-pc-bin xorriso qemu-system-x86_64
 
-### Features
+Build and run
+- make
+- make run
 
-- **Lightweight Architecture**: Optimized kernel for fast boot and efficient resource management
-- **Unified Experience**: Consistent user interface across all platforms
-- **Security First**: Built-in encryption and advanced security protocols
-- **Developer Friendly**: Comprehensive APIs and documentation
-- **Real-time Performance**: Low-latency processing for mission-critical tasks
+Notes
+- This kernel expects to be loaded by GRUB (multiboot2). The boot.S includes a
+  minimal multiboot2 header. GRUB2 will recognize the header and load the ELF64
+  binary into memory; in typical setups GRUB runs in long mode and will transfer
+  control to the ELF64 entrypoint.
 
-### Project Structure
+- If GRUB on your system does not switch to long mode for the kernel, you can
+  add a small 32-bit-to-64-bit bootstrap stage that enables long mode. If you
+  want that fully self-contained long-mode switcher (builds page tables and
+  enables LME), tell me and I'll add it to the repo. (I can add an optional
+  boot32.S that performs the switch.)
 
-```
-bizzy-fusion-os/
-├── kernel/          # Core OS kernel
-├── drivers/         # Hardware drivers
-├── utilities/       # System utilities
-├── ui/              # User interface components
-├── docs/            # Documentation
-└── tests/           # Test suites
-```
+Next improvements I can make for you
+- Add a self-contained 32-bit->64-bit switching stage (build page tables and
+  explicitly enable long mode) so the kernel doesn't rely on GRUB's mode.
+- Add keyboard input, timer interrupts, and a simple console driver.
+- Replace the C kernel with a Rust no_std kernel and a cargo workspace.
 
-### Getting Started
-
-See the [SETUP.md](docs/SETUP.md) for installation and development setup instructions.
-
-### Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### License
-
-MIT License - See LICENSE file for details
+Branch
+- Files have been committed to the hobby-kernel-64bit branch as requested.
