@@ -1,117 +1,170 @@
 /**
- * Bizzy-Fusion OS - Main Kernel Entry Point
- * 
- * This is the main kernel function called by the bootloader.
- * It initializes all kernel subsystems and starts the scheduler.
+ * Bizzy-Fusion OS - Stage 0 Kernel
+ *
+ * Purpose:
+ *   Establish a minimal, observable boot path.
+ *
+ * Boot sequence:
+ *   GRUB Multiboot2
+ *       -> start
+ *       -> kernel_main
+ *       -> serial initialization
+ *       -> VGA initialization
+ *       -> boot diagnostics
+ *       -> halt
  */
 
 #include "core/kernel.h"
-#include "interrupts/interrupts.h"
-#include "process/scheduler.h"
-#include "memory/paging.h"
 #include "io/io.h"
-#include "drivers/keyboard.h"
-#include "drivers/timer.h"
-#include "utilities/string.h"
 
-// Forward declarations
-void print_banner();
-void print_system_info();
-void initialize_subsystems();
+#define COM1 0x3F8
 
-/**
- * Main kernel entry point
- * Called from boot.s after initial setup
- */
-void kernel_main() {
-    // Clear the screen
-    clear_screen();
-    
-    // Print welcome banner
-    print_banner();
-    
-    // Print system information
-    print_system_info();
-    
-    // Initialize all kernel subsystems
-    initialize_subsystems();
-    
-    // Start the process scheduler
-    scheduler_start();
-    
-    // The kernel never reaches here - scheduler runs indefinitely
-    while(1);
+static void serial_init(void)
+{
+    /*
+     * Disable interrupts for COM1.
+     */
+    outb(COM1 + 1, 0x00);
+
+    /*
+     * Enable DLAB and set divisor to 3 (38400 baud).
+     */
+    outb(COM1 + 3, 0x80);
+    outb(COM1 + 0, 0x03);
+    outb(COM1 + 1, 0x00);
+
+    /*
+     * 8 data bits, no parity, one stop bit.
+     */
+    outb(COM1 + 3, 0x03);
+
+    /*
+     * Enable FIFO, clear buffers.
+     */
+    outb(COM1 + 2, 0xC7);
+
+    /*
+     * Enable RTS/DSR.
+     */
+    outb(COM1 + 4, 0x0B);
 }
 
-/**
- * Print the Bizzy-Fusion OS banner
- */
-void print_banner() {
-    kprintf("\n");
-    kprintf("╔════════════════════════════════════════════════════════╗\n");
-    kprintf("║                                                        ║\n");
-    kprintf("║          BIZZY-FUSION OPERATING SYSTEM v1.0            ║\n");
-    kprintf("║              Lightweight, Modular Kernel               ║\n");
-    kprintf("║                                                        ║\n");
-    kprintf("╚════════════════════════════════════════════════════════╝\n");
-    kprintf("\n");
+static int serial_ready(void)
+{
+    return (inb(COM1 + 5) & 0x20) != 0;
 }
 
-/**
- * Print system initialization information
- */
-void print_system_info() {
-    kprintf("[KERNEL] Initializing Bizzy-Fusion OS...\n");
-    kprintf("[KERNEL] System Architecture: i686 (32-bit x86)\n");
-    kprintf("[KERNEL] Available Memory: 64 MB\n");
-    kprintf("[KERNEL] Max Processes: 256\n");
-    kprintf("\n");
+static void serial_write_char(char c)
+{
+    while (!serial_ready()) {
+    }
+
+    outb(COM1, (unsigned char)c);
 }
 
-/**
- * Initialize all kernel subsystems in order
- */
-void initialize_subsystems() {
-    kprintf("[INIT] Setting up interrupt handlers...\n");
-    interrupts_init();
-    
-    kprintf("[INIT] Initializing memory management...\n");
-    paging_init();
-    
-    kprintf("[INIT] Initializing process management...\n");
-    scheduler_init();
-    
-    kprintf("[INIT] Setting up timer...\n");
-    timer_init();
-    
-    kprintf("[INIT] Initializing keyboard driver...\n");
-    keyboard_init();
-    
-    kprintf("[INIT] All subsystems initialized successfully!\n");
-    kprintf("[INIT] Starting process scheduler...\n\n");
+static void serial_write(const char *s)
+{
+    if (s == 0) {
+        return;
+    }
+
+    while (*s != '\0') {
+        if (*s == '\n') {
+            serial_write_char('\r');
+        }
+
+        serial_write_char(*s);
+        ++s;
+    }
 }
 
-/**
- * Kernel panic - unrecoverable error
- * Halts the system and displays error message
- */
-void kernel_panic(const char *message, const char *file, int line) {
-    // Disable interrupts
+void kernel_main(void)
+{
     disable_interrupts();
-    
-    // Clear screen and print error
+
+    /*
+     * Initialize serial FIRST.
+     * This gives us a machine-readable boot trace even
+     * when VGA output is hidden.
+     */
+    serial_init();
+
+    serial_write("\n");
+    serial_write("========================================\n");
+    serial_write("       BIZZY-FUSION OPERATING SYSTEM\n");
+    serial_write("                 v1.0\n");
+    serial_write("========================================\n");
+
+    serial_write("[BOOT] Multiboot2 entry: OK\n");
+    serial_write("[BOOT] Kernel entry: OK\n");
+    serial_write("[BOOT] Architecture: i386\n");
+    serial_write("[BOOT] Serial COM1: OK\n");
+
+    /*
+     * Initialize VGA after serial is confirmed.
+     */
     clear_screen();
-    kprintf("\n╔════════════════════════════════════════════════════════╗\n");
-    kprintf("║                   KERNEL PANIC                        ║\n");
-    kprintf("╚════════════════════════════════════════════════════════╝\n\n");
-    
-    kprintf("Message: %s\n", message);
-    kprintf("Location: %s:%d\n\n", file, line);
-    
-    kprintf("System halted. Please reboot.\n");
-    
-    // Halt the CPU
-    while(1) {
+
+    kprintf("\n");
+    kprintf("========================================\n");
+    kprintf("       BIZZY-FUSION OPERATING SYSTEM\n");
+    kprintf("                 v1.0\n");
+    kprintf("========================================\n\n");
+
+    kprintf("[BOOT] Multiboot2 entry: OK\n");
+    kprintf("[BOOT] Kernel entry: OK\n");
+    kprintf("[BOOT] Architecture: i386\n");
+    kprintf("[BOOT] Kernel address: 0x100000\n");
+    kprintf("[BOOT] VGA console: OK\n");
+    kprintf("[BOOT] Interrupts: DISABLED\n");
+
+    serial_write("[BOOT] VGA initialization complete\n");
+    serial_write("[BOOT] Stage 0 initialization complete\n");
+    serial_write("[BOOT] Bizzy-Fusion kernel is alive\n");
+    serial_write("[BOOT] Entering halt loop\n");
+
+    kprintf("[BOOT] Stage 0 initialization complete.\n");
+    kprintf("[BOOT] Bizzy-Fusion kernel is alive.\n");
+    kprintf("\n");
+
+    for (;;) {
+        halt_cpu();
+    }
+}
+
+void kernel_panic(
+    const char *message,
+    const char *file,
+    int line
+)
+{
+    disable_interrupts();
+
+    serial_write("\n[PANIC] Bizzy-Fusion kernel panic\n");
+
+    if (message != 0) {
+        serial_write("[PANIC] Message: ");
+        serial_write(message);
+        serial_write("\n");
+    }
+
+    clear_screen();
+
+    kprintf("\n");
+    kprintf("========================================\n");
+    kprintf("            BIZZY-FUSION PANIC\n");
+    kprintf("========================================\n\n");
+
+    kprintf("Message: %s\n",
+            message != 0 ? message : "(null)");
+
+    kprintf("Location: %s:%d\n",
+            file != 0 ? file : "(unknown)",
+            line);
+
+    kprintf("\nSystem halted.\n");
+
+    for (;;) {
         halt_cpu();
     }
 }
